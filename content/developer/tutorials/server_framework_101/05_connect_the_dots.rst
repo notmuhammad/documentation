@@ -299,6 +299,9 @@ large number of records.
           string="Profit Margin", compute='_compute_margin', inverse='_inverse_margin', store=True
       )
 
+To make our real estate app more efficient and scalable, we can store certain computed fields in the
+database. Let’s store one for now and see how it translates into the database schema.
+
 .. exercise::
    #. Store the `total_area` field in the database.
    #. Use `psql` to check that the field is stored in the database.
@@ -343,9 +346,6 @@ domain must be constructed using stored fields only.
 
    .. code-block:: python
 
-      margin = fields.Float(
-          string="Profit Margin", compute='_compute_margin', inverse='_inverse_margin', store=True
-      )
       is_profitable = fields.Boolean(
           string="Profitable", compute='_compute_is_profitable', search='_search_is_profitable'
       )
@@ -357,6 +357,10 @@ domain must be constructed using stored fields only.
               return [('margin', '<=', 0)]
           else:
               raise NotImplementedError()
+
+   .. note::
+      - Search methods return a search domain that matches the computation of the searched field.
+      - It is not required to implemented all search operators.
 
 Our real estate app would be more powerful if we could add a set of search filters based on computed
 fields to the property views. Let’s leverage search methods to achieve this.
@@ -479,11 +483,80 @@ In practice, related fields are defined like regular fields, but with the `relat
 the path of the related record's field. Related fields can also be stored with the `store=True`
 argument, just like regular computed fields.
 
+.. example::
+   In the example below, the related `category_name` field is derived from the `category_id` field.
+
+   .. code-block:: python
+
+      category_name = fields.Char(string="Category Name", related='category_id.name')
+
 .. seealso::
    :ref:`Reference documentation for related fields <reference/fields/related>`
 
-.. todo: related buyer's phone
-.. todo: related address's street depends=[partner_id]
+In :doc:`04_relational_fields`, we introduced several relational fields. Retrieving information from
+their related models often requires additional steps from the user, but we can use related fields to
+simplify this process.
+
+.. exercise::
+   #. Use a related field to display the phone number of buyers in the offer list view.
+   #. Use a related field to display the street of properties in form view and allow searching by
+      street without implementing a search method.
+
+.. spoiler:: Solution
+
+   .. code-block:: python
+      :caption: `real_estate_offer.py`
+      :emphasize-lines: 2
+
+      buyer_id = fields.Many2one(string="Buyer", comodel_name='res.partner', required=True)
+      phone = fields.Char(string="Phone", related='buyer_id.phone')
+
+   .. code-block:: xml
+      :caption: `real_estate_offer_views.xml`
+      :emphasize-lines: 6
+
+      <record id="real_estate.offer_list" model="ir.ui.view">
+          [...]
+              <list>
+                  [...]
+                  <field name="buyer_id"/>
+                  <field name="phone"/>
+                  [...]
+              </list>
+          [...]
+      </record>
+
+   .. code-block:: python
+      :caption: `real_estate_property.py`
+      :emphasize-lines: 2
+
+      address_id = fields.Many2one(string="Address", comodel_name='res.partner', required=True)
+      street = fields.Char(string="Street", related='address_id.street', store=True)
+
+   .. code-block:: xml
+      :caption: `real_estate_property_views.xml`
+      :emphasize-lines: 5,15
+
+      <record id="real_estate.property_form" model="ir.ui.view">
+          [...]
+              <group string="Listing Information">
+                  <field name="type_id"/>
+                  <field name="street"/>
+                  [...]
+              </group>
+          [...]
+      </record>
+
+      <record id="real_estate.property_search" model="ir.ui.view">
+          [...]
+              <search>
+                  [...]
+                  <field name="street"/>
+                  <field name="selling_price" string="Maximum Price" operator="&lt;="/>
+                  [...]
+              </search>
+          [...]
+      </record>
 
 .. _tutorials/server_framework_101/onchanges:
 
