@@ -571,6 +571,87 @@ withholdings percentages apply.
    withholding of 70% in a new line with the same tax support, the system will allow you as long as
    the total of the bases matches the total from the :guilabel:`Vendor Bill`.
 
+Expense Reimbursement
+------------------
+
+Expense reimbursements apply to the following cases:
+
+- :guilabel:`Individual`: Reimbursement to an employee for miscellaneous expenses - Purchase Liquidations.
+- :guilabel:`Legal Entity:`: Reimbursement for incurred expenses, such as representation expenses (Lawyer) 
+- Vendor Bills.
+
+.. image:: l10n-ec-expense-reimbursement.png
+   :align: center
+   :alt: Expense Reimbursement.
+
+
+Flow for Creating Expense Reimbursement for an Individual
+~~~~~~~~~~~
+
+You must add the configuration of the :doc:`purchase liquidations <../fiscal_localizations/
+ecuador.html#purchase-liquidations>
+`with a :guilabel:`Default Expense Account`.
+
+.. image:: l10n-ec-configuration-liquidations-journal.png
+   :align: center
+   :alt: Expense Reimbursement.
+
+- :guilabel:`Create a Vendor Bill` using the journal :guilabel:`”Purchase Liquidations”`.
+- :guilabel:`Select Vendor`, in this case, it would be the employee.
+- :guilabel:`Verify Document Type.` 
+- :guilabel:`Select Payment Method (SRI).`
+- :guilabel:`Go to the Reimbursement Lines tab`and add the expenses line by line.
+- Provide the following details for each expense:
+	   - :guilabel:`Partner or authorization number.`
+   	- :guilabel:`Date`
+   	- :guilabel:`Document Type`
+   	- :guilabel:`Document Number`
+  	   - :guilabel:`Tax Base`
+  	   - :guilabel:`Tax`
+- :guilabel:`Click the “Auto Fill Invoice Lines” button.`
+- :guilabel:`Confirm the Vendor Bill` and click the :guilabel:`“Process now”` button.
+- The XML and authorization number for the purchase liquidation have been recorded.
+- The created purchase withholding from this Vendor Bill will have the reimbursement information.
+
+.. image:: l10n-ec-individual-flow.png
+   :align: center
+   :alt: Expense Reimbursement.
+
+Flow for Creating an Expense Reimbursement for a Legal Entity
+~~~~~~~~~~~
+
+You must add the configuration of the :guilabel:`Vendor Bills Journal` with a :guilabel:`Default Expense Account`.
+
+.. image:: l10n-ec-vendor-journal.png
+   :align: center
+   :alt: Expense Reimbursement.
+
+- Create a document using the journal :guilabel:`”Vendor Bills”`.
+- :guilabel:`Select a Vendor` whose identification type is :guilabel:`RUC`.
+- :guilabel:`Verify Document Type.` 
+- :guilabel:`Select Payment Method (SRI).`
+- :guilabel:`Go to the Reimbursement Lines tab`and add the expenses line by line.
+- Provide the following details for each expense:
+	   - :guilabel:`Partner or authorization number.`
+   	- :guilabel:`Date`
+   	- :guilabel:`Document Type`
+   	- :guilabel:`Document Number`
+  	   - :guilabel:`Tax Base`
+  	   - :guilabel:`Tax`
+- Click the :guilabel:`Auto Fill Invoice Lines` button.
+  	- :guilabel:`Confirm the Vendor Bill.`
+	- The created purchase withholding from this Vendor Bill will have the reimbursement   information.
+
+.. note::
+   It is not necessary to link a product in the expense lines. After adding the reimbursement lines, 
+more lines can be added to represent other expenses that are not reimbursements
+
+.. image:: l10n-ec-product.png
+   :align: center
+   :alt: Expense Reimbursement.
+
+
+
 eCommerce
 ---------
 
