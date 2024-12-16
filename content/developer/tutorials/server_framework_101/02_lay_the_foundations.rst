@@ -509,7 +509,6 @@ same model. It also loads faster, making it the go-to format when performance ma
       state_ca_yt,ca,"Yukon","YT"
 
    .. note::
-
       - The file name must match the model name.
       - The first line lists the model fields to populate.
       - XML IDs are specified via the special `id` field.

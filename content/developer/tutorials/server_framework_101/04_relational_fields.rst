@@ -58,7 +58,6 @@ structure guidelines** that offer several benefits:
       └── __manifest__.py
 
    .. note::
-
       - The :file:`models` directory contains its own :file:`__init__.py` file, simplifying Python
         imports. The root :file:`__init__.py` file imports the :file:`models` Python package, which
         in turns imports individual model files.
@@ -235,7 +234,6 @@ the referenced record's ID.
           name = fields.Char(string="Name")
 
    .. note::
-
       - The relationship only needs to be declared on the *many* side to be established.
       - The `ondelete` argument on the `Many2one` field defines what happens when the referenced
         record is deleted.
@@ -843,7 +841,6 @@ convention, `Many2many` field names end with the `_ids` suffix, like for `One2ma
           )
 
    .. note::
-
       - It is not necessary to add a `Many2many` field to both models of the relationship.
       - The optional `relation`, `column1`, and `column2` field arguments allow specifying the name
         of the junction table and of its columns.

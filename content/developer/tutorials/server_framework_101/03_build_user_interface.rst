@@ -368,7 +368,6 @@ field labels and values).
       </record>
 
    .. note::
-
       - The XML structure differs between view types.
       - The `description` field is omitted from the list view because it wouldn't fit visually.
 

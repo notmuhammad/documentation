@@ -72,7 +72,6 @@ that computed fields remain consistent.
                   product.breadcrumb = f"{category.name} / {product.name}"
 
    .. note::
-
       - Compute methods are referenced using their names as strings in the `compute` field argument,
         rather than directly linking the method object. This allows placing them after the field
         declaration.
@@ -80,7 +79,7 @@ that computed fields remain consistent.
         the :doc:`external API <../../reference/external_api>`.
       - Numeric field values default to `0` when not explicitly set.
       - A compute method can depend on another computed field.
-      - Field values for related models can be accessed via the `Many2one`, `One2many`, or
+      - Field values for related models can be accessed via their `Many2one`, `One2many`, or
         `Many2many` field.
       - Variables used for relational field values are typically not suffixed with `_id` or `_ids`.
         While the field itself represents the stored ID(s), the variable holds the corresponding
@@ -93,7 +92,7 @@ that computed fields remain consistent.
    - :ref:`Coding guidelines on naming and ordering the members of model classes
      <contributing/coding_guidelines/model_members>`
 
-Our real estate models can benefit from several computed fields to automate common calculations.
+Our real estate models could benefit from several computed fields to automate common calculations.
 Let's implement them.
 
 .. exercise::
@@ -576,23 +575,130 @@ the :code:`@api.onchange()` decorator. These methods are triggered when the spec
 are altered. They operate on the in-memory representation of a single-record recordset received
 through `self`. If field values are modified, the changes are automatically reflected in the UI.
 
-.. todo: explain the env (self.env.uid, self.env.user, self.env.ref(xml_id), self.env[model_name])
+.. example::
+   In the following example, onchange methods are implemented to:
+
+   - unpublish products when all sellers are removed;
+   - warn the user if changing the sales price would result in a negative margin;
+   - raise a blocking user error if the category is changed after sales have been made.
+
+   .. code-block:: python
+
+      from odoo import _, api, fields, models
+      from odoo.exceptions import UserError
+
+
+      class Product(models.Model):
+          is_published = fields.Boolean(string="Published")
+
+          @api.onchange('seller_ids')
+          def _onchange_seller_ids_unpublish_if_no_sellers(self):
+              if not self.seller_ids:
+                  self.is_published = False
+
+          @api.onchange('price')
+          def _onchange_price_warn_if_margin_is_negative(self):
+              if self.margin < 0:
+                  return {
+                      'warning': {
+                          'title': _("Warning"),
+                          'message': _(
+                              "The sales price was changed from %(before_price)s to %(new_price)s, which"
+                              " would result in a negative margin. A sales price of minimum %(min_price)s"
+                              " is recommended.",
+                              before_price=self._origin.price, new_price=self.price, min_price=self.cost,
+                          ),
+                      }
+                  }
+
+          @api.onchange('category_id')
+          def _onchange_category_id_block_if_existing_sales(self):
+              existing_sales = self.env['sales.order'].search([('product_id', '=', self._origin.id)])
+              if existing_sales:
+                  raise UserError(_(
+                      "You cannot change the category of a product that has already been sold; unpublish"
+                      " it instead."
+                  ))
+
+   .. note::
+      - It is recommended to give self-explanatory names to onchange methods as multiple onchange
+        methods can be defined for a single field.
+      - Onchange methods don't need to iterate over the records as `self` is always a recordset of
+        length 1.
+      - The :code:`_()` function from the `odoo` package marks display strings :dfn:`strings shown
+        to the user and denoted with double quotes` for translation.
+      - Regular string interpolation isn't possible withing the translation function. Instead,
+        values to interpolate are passed as either positional arguments when using the :code:`%s`
+        format, or as keyword arguments when using the :code:`%(name)s` format.
+      - The `_origin` model attribute refers to the original record before user modifications.
+      - The `env` model attribute is an object that allows access to other models and their classes.
+      - The `search` method can be used to query a model for records matching a given search domain.
+      - In onchanges methods, the `id` attribute cannot be used to directly access the record's ID.
+      - Blocking user errors are raised as exceptions.
 
 .. seealso::
    - Reference documentation for the :meth:`@api.onchange() <odoo.api.onchange>` decorator
+   - :doc:`How-to guide on translations </developer/howtos/translations>`
    - Reference documentation for the :class:`UserError <odoo.exceptions.UserError>` exception
+   - :ref:`Reference documentation for the environment object <reference/orm/environment>`
+   - Reference documentation for the :meth:`search <odoo.models.Model.search>` method
 
-.. todo: tip ref translation
-
-.. todo: raise UserError + translation
-.. todo: note: mention that the method is public so it can be called directly by the client.
-   always return something in public methods as they are part of the :ref:external API and can be called through XML-RPC
+In our real estate app, data entry could be more intuitive and efficient. Let's use onchange methods
+to automate updates and guide users as they edit data.
 
 .. exercise::
-   tmp
+   #. Set the garden area to zero if the garden checkbox is unchecked.
+   #. Set the garden checkbox to checked if the garden area is set.
+   #. Display a non-blocking warning if the garden area is set to zero and the garden checkbox is
+      unchecked.
+   #. Prevent archiving a property that has **pending** offers.
 
-.. todo: if garden unchecked -> set garden area to zero
-.. todo: if write in garden area -> set garden checked
+.. spoiler:: Solution
+
+   .. code-block:: python
+      :caption: `real_estate_property.py`
+      :emphasize-lines: 1-2, 9-40
+
+      from odoo import _, api, fields, models
+      from odoo.exceptions import UserError
+      from odoo.tools import date_utils
+
+
+      class RealEstateProperty(models.Model):
+          [...]
+
+          @api.onchange('active')
+          def _onchange_active_block_if_existing_offers(self):
+              if not self.active:
+                  existing_offers = self.env['real.estate.offer'].search(
+                      [('property_id', '=', self._origin.id), ('state', '=', 'waiting')]
+                  )
+                  if existing_offers:
+                      raise UserError(
+                          _("You cannot change the active state of a property that has pending offers.")
+                      )
+
+          @api.onchange('has_garden')
+          def _onchange_has_garden_set_garden_area_to_zero_if_unchecked(self):
+              if not self.has_garden:
+                  self.garden_area = 0
+
+          @api.onchange('garden_area')
+          def _onchange_garden_area_uncheck_garden_if_zero(self):
+              if self.garden_area and not self.has_garden:
+                  self.has_garden = True
+
+          @api.onchange('garden_area')
+          def _onchange_garden_area_display_warning_if_zero_and_unchecked(self):
+              if not self.garden_area and self.has_garden:
+                  return {
+                      'warning': {
+                          'title': _("Warning"),
+                          'message': _(
+                              "The garden area was set to zero, but the garden checkbox is checked."
+                          ),
+                      }
+                  }
 
 .. _tutorials/server_framework_101/constraints:
 
@@ -691,6 +797,9 @@ Trigger business workflows
 buttons can be of type **action**, defined in XML, or **object**, implemented in the model.
 Together, these types of buttons facilitate the integration of user interactions with business
 logic.
+
+.. todo: note: mention that the method is public so it can be called directly by the client.
+   always return something in public methods as they are part of the :ref:external API and can be called through XML-RPC
 
 .. todo: def create of offer -> write state of the property to offer received
 .. todo: def unlink: _unlink_if_state_is_valid (new or cancelled)
