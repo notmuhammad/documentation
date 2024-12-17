@@ -359,7 +359,7 @@ domain must be constructed using stored fields only.
 
    .. note::
       - Search methods return a search domain that matches the computation of the searched field.
-      - It is not required to implemented all search operators.
+      - It is not required to implement all search operators.
 
 Our real estate app would be more powerful if we could add a set of search filters based on computed
 fields to the property views. Let’s leverage search methods to achieve this.
@@ -368,8 +368,7 @@ fields to the property views. Let’s leverage search methods to achieve this.
    Add the following search filters to the real estate property views:
 
    - **Stalled**: The property is past its availability date.
-   - **Priority**: The property has an offer that expires in less than two days. **Don't** use a
-     search method for this one.
+   - **Priority**: The property has an offer that expires in less than two days.
 
 .. spoiler:: Solution
 
@@ -650,7 +649,7 @@ to automate updates and guide users as they edit data.
    #. Set the garden area to zero if the garden checkbox is unchecked.
    #. Set the garden checkbox to checked if the garden area is set.
    #. Display a non-blocking warning if the garden area is set to zero and the garden checkbox is
-      unchecked.
+      checked.
    #. Prevent archiving a property that has **pending** offers.
 
 .. spoiler:: Solution
@@ -689,7 +688,7 @@ to automate updates and guide users as they edit data.
                   self.has_garden = True
 
           @api.onchange('garden_area')
-          def _onchange_garden_area_display_warning_if_zero_and_unchecked(self):
+          def _onchange_garden_area_display_warning_if_zero_and_checked(self):
               if not self.garden_area and self.has_garden:
                   return {
                       'warning': {
