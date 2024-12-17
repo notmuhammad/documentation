@@ -710,7 +710,7 @@ business requirements, preventing invalid values, duplicate entries, or inconsis
 from being saved to the database.
 
 In Odoo, constraints can be implemented at two different levels: directly in the database schema
-using **SQL constraints**, or in the model's logic using **Python constraints**. Each type has its
+using **SQL constraints**, or in the model's logic using **constraint methods**. Each type has its
 own advantages and use cases, allowing developers to choose the most appropriate validation method
 based on their specific needs.
 
@@ -730,28 +730,96 @@ SQL constraints are defined in the model using the `_sql_constraints` class attr
 attribute contains a list of tuples, with each tuple specifying the constraint's name, the SQL
 expression to validate, and the error message to display if the constraint is violated.
 
+.. example::
+   The following example defines SQL constraints to enforce a positive product sales price and
+   ensure that product category names remain unique.
+
+   .. code-block:: python
+
+      class Product(models.Model):
+          _name = 'product'
+          _description = "Storable Product"
+          _sql_constraints = [
+              ('positive_price', 'CHECK (price >= 0)', "The sales price must be positive.")
+          ]
+
+      class ProductCategory(models.Model):
+          _name = 'product.category'
+          _description = "Product Category"
+          _sql_constraints = [
+              ('unique_name', 'unique(name)', "A category name must be unique.")
+          ]
+
 .. seealso::
    - Reference documentation for the :attr:`_sql_constraints
      <odoo.models.BaseModel._sql_constraints>` class attribute
    - `Reference documentation for PostgreSQL's constraints
      <https://www.postgresql.org/docs/current/ddl-constraints.html>`_
 
-.. todo: property price strictly positive
-.. todo: offer amount strictly positive
-.. todo: unique tag
+.. exercise::
+   #. Enforce that the selling price of a property and the amount of an offer are strictly positive.
+   #. Ensure that property types and tag names are unique.
 
-.. _tutorials/server_framework_101/python_constraints:
+.. spoiler:: Solution
 
-Python constraints
+   .. code-block:: python
+      :caption: `real_estate_property.py`
+      :emphasize-lines: 4-8
+
+      class RealEstateProperty(models.Model):
+          _name = 'real.estate.property'
+          _description = "Real Estate Property"
+          _sql_constraints = [(
+              'positive_price',
+              'CHECK (selling_price > 0)',
+              "The selling price must be strictly positive.",
+          )]
+
+   .. code-block:: python
+      :caption: `real_estate_offer.py`
+      :emphasize-lines: 4-6
+
+      class RealEstateOffer(models.Model):
+          _name = 'real.estate.offer'
+          _description = "Real Estate Offer"
+          _sql_constraints = [
+              ('positive_amount', 'CHECK (amount > 0)', "The amount must be strictly positive.")
+          ]
+
+   .. code-block:: python
+      :caption: `real_estate_property_type.py`
+      :emphasize-lines: 4-6
+
+      class RealEstatePropertyType(models.Model):
+          _name = 'real.estate.property.type'
+          _description = "Real Estate Property Type"
+          _sql_constraints = [
+              ('unique_name', 'unique(name)', "A property type name must be unique.")
+          ]
+
+   .. code-block:: python
+      :caption: `real_estate_tag.py`
+      :emphasize-lines: 4-6
+
+      class RealEstateTag(models.Model):
+          _name = 'real.estate.tag'
+          _description = "Real Estate Tag"
+          _sql_constraints = [
+              ('unique_name', 'unique(name)', "A property tag name must be unique.")
+          ]
+
+.. _tutorials/server_framework_101/constraint_methods:
+
+Constraint methods
 ------------------
 
-Python constraints are record-level rules implemented through Python methods defined on the model.
+Constraint methods are record-level rules implemented through Python methods defined on the model.
 Unlike SQL constraints, they allow for flexible and context-aware validations based on business
 logic, at the expense of higher performance impact than SQL constraints, as they are evaluated
 server-side on recordsets. Use cases include ensuring that certain fields align with a specific
 condition or that multiple fields work together in a valid combination.
 
-Python constraints are defined in the model as methods decorated with :code:`@api.constrains()`,
+Constraint methods are defined in the model as methods decorated with :code:`@api.constrains()`,
 which specifies the fields that trigger the validation. These methods are triggered automatically
 when a record is created or updated, performing custom validation and raising validation errors if
 the constraint is violated.
@@ -799,6 +867,13 @@ logic.
 
 .. todo: note: mention that the method is public so it can be called directly by the client.
    always return something in public methods as they are part of the :ref:external API and can be called through XML-RPC
+
+.. _tutorials/server_framework_101/crud_methods:
+
+CRUD methods
+------------
+
+tmp
 
 .. todo: def create of offer -> write state of the property to offer received
 .. todo: def unlink: _unlink_if_state_is_valid (new or cancelled)
