@@ -712,7 +712,8 @@ from being saved to the database.
 In Odoo, constraints can be implemented at two different levels: directly in the database schema
 using **SQL constraints**, or in the model's logic using **constraint methods**. Each type has its
 own advantages and use cases, allowing developers to choose the most appropriate validation method
-based on their specific needs.
+based on their specific needs. Unlike onchange methods, constraints are enforced when saving records
+to the database, not when they are altered in the UI.
 
 .. _tutorials/server_framework_101/sql_constraints:
 
@@ -815,24 +816,103 @@ Constraint methods
 
 Constraint methods are record-level rules implemented through Python methods defined on the model.
 Unlike SQL constraints, they allow for flexible and context-aware validations based on business
-logic, at the expense of higher performance impact than SQL constraints, as they are evaluated
-server-side on recordsets. Use cases include ensuring that certain fields align with a specific
-condition or that multiple fields work together in a valid combination.
+logic. However, they come with a higher performance cost compared to SQL constraints, as they are
+evaluated server-side on recordsets. Use cases include ensuring that certain fields align with
+specific conditions or that multiple fields work together in a valid combination.
 
 Constraint methods are defined in the model as methods decorated with :code:`@api.constrains()`,
-which specifies the fields that trigger the validation. These methods are triggered automatically
-when a record is created or updated, performing custom validation and raising validation errors if
-the constraint is violated.
+which specifies the fields that trigger the validation when they are altered. Upon activation, they
+perform custom validation and raise blocking validation errors if the constraint is violated.
+
+.. example::
+   The following example shows how a constraint method can be defined to ensure that the price of a
+   product is higher than the minimum price of its category.
+
+   .. code-block:: python
+
+      from odoo import _, api, fields, models
+      from odoo.exceptions import UserError, ValidationError
+
+
+      class ProductCategory(models.Model):
+         _name = 'product.category'
+
+         min_price = fields.Float(string="Minimum Sales Price", required=True)
+
+
+      class Product(models.Model):
+         _name = 'product.product'
+
+         @api.constrains('price', 'category_id')
+         def _check_price_is_higher_than_category_min_price(self):
+             for product in self:
+                 if product.price < product.category_id.min_price:
+                     raise ValidationError(
+                         _("The price must be higher than %s.", product.category_id.min_price)
+                     )
 
 .. seealso::
    - Reference documentation for the :meth:`@api.constrains <odoo.api.constrains()>` decorator
    - Reference documentation for the :class:`ValidationError <odoo.exceptions.ValidationError>`
      exception
 
-.. todo: the offer amount must be at least 80% of the sales price
-.. todo: the availability date must be in less than 3 months
-.. todo: accept only one offer
-.. todo: new offers of given user must be more than offers (tip: filtered)
+.. exercise::
+   #. Ensure that a property's availability date is no more than one year from today.
+   #. Ensure that a buyer's new offer for a property has a higher amount than their previous offers
+      for the same property.
+   #. Ensure that only one offer can be accepted for a property at a time.
+
+   .. tip::
+      - Use the :meth:`filtered <odoo.models.Model.filtered>` method to filter records of a
+        recordset based on a predicate.
+      - Recordsets can be counted using the `len` function.
+
+.. spoiler:: Solution
+
+   .. code-block:: python
+      :caption: `real_estate_property.py`
+      :emphasize-lines: 2,9-13
+
+      from odoo import _, api, fields, models
+      from odoo.exceptions import UserError, ValidationError
+      from odoo.tools import date_utils
+
+
+      class RealEstateProperty(models.Model):
+          [...]
+
+          @api.constrains('availability_date')
+          def _check_availability_date_under_1_year(self):
+              for property in self.filtered('availability_date'):
+                  if property.availability_date > fields.Date.today() + date_utils.relativedelta(years=1):
+                      raise ValidationError(_("The availability date must be in less than one year."))
+
+   .. code-block:: python
+      :caption: `real_estate_offer.py`
+      :emphasize-lines: 1-2,9-22
+
+      from odoo import _, api, fields, models
+      from odoo.exceptions import ValidationError
+      from odoo.tools import date_utils
+
+
+      class RealEstateOffer(models.Model):
+          [...]
+
+          @api.constrains('amount')
+          def _check_amount_higher_than_previous_offers(self):
+              for offer in self:
+                  if offer.amount < max(offer.property_id.offer_ids.mapped('amount')):
+                      raise ValidationError(_(
+                          "The amount of the new offer must be higher than the amount of the previous "
+                          "offers."
+                      ))
+
+          @api.constrains('state')
+          def _check_state_is_accepted_for_only_one_offer(self):
+              for offer in self.filtered(lambda o: o.state == 'accepted'):
+                  if len(offer.property_id.offer_ids.filtered(lambda o: o.state == 'accepted')) > 1:
+                      raise ValidationError(_("Only one offer can be accepted for a property."))
 
 .. _tutorials/server_framework_101/defaults:
 
