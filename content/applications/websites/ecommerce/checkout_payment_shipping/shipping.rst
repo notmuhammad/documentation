@@ -1,16 +1,16 @@
 ========
-Shipping
+Delivery
 ========
 
-Odoo eCommerce allows you to configure various shipping methods, enabling customers to choose
-their preferred option at checkout. These methods include :ref:`external providers
-<ecommerce/shipping/external-provider>`, :ref:`custom options <ecommerce/shipping/custom-method>`
+Odoo eCommerce allows you to configure various delivery methods, enabling customers to choose
+their preferred option at :doc:`checkout <checkout>`. These methods include :ref:`external providers
+<ecommerce/delivery/external-provider>`, :ref:`custom options <ecommerce/delivery/custom-method>`
 such as flat-rate or free shipping, local carriers via
 :doc:`Sendcloud <../../../inventory_and_mrp/inventory/shipping_receiving/setup_configuration/sendcloud_shipping>`
 or :ref:`Based on Rules <inventory/shipping/rules>`, and :ref:`in-store pickup
-<ecommerce/shipping/instore-pickup>`.
+<ecommerce/delivery/instore-pickup>`.
 
-.. _ecommerce/shipping/external-provider:
+.. _ecommerce/delivery/external-provider:
 
 External provider integration
 =============================
@@ -24,11 +24,11 @@ A shipping connector links to these providers, automating :doc:`tracking labels
 <../../../inventory_and_mrp/inventory/shipping_receiving/setup_configuration/labels>` and shipping
 processes.
 
-To enable a third-party shipping provider, go to :menuselection:`Website --> Configuration -->
-Settings`, scroll to the :guilabel:`Shipping` section, select the desired shipping provider(s),
+To enable a third-party delivery provider, go to :menuselection:`Website --> Configuration -->
+Settings`, scroll to the :guilabel:`Delivery` section, select the desired delivery provider(s),
 and :guilabel:`Save`.
 
-Go to :menuselection:`Website --> Configuration --> Shipping Methods` and select the shipping method
+Go to :menuselection:`Website --> Configuration --> Delivery Methods` and select the delivery method
 in the list to :ref:`configure it <inventory/shipping_receiving/configure-delivery-method>`.
 
 .. seealso::
@@ -36,10 +36,10 @@ in the list to :ref:`configure it <inventory/shipping_receiving/configure-delive
    <../../../inventory_and_mrp/inventory/shipping_receiving/setup_configuration/third_party_shipper>`
 
 .. important::
-   The field used to define additional fees **must** be filled **in your third-party shipping
+   The field used to define additional fees **must** be filled **in your third-party delivery
    provider account**, even if you do not plan to charge customers any additional fee. If you do not
    want to apply a fee, enter `0`. If the field is left empty, the delivery price cannot be
-   calculated, and an error message prompts the customer to select an alternative shipping method.
+   calculated, and an error message prompts the customer to select an alternative delivery method.
 
 Margin on delivery rate
 -----------------------
@@ -59,22 +59,22 @@ field to add a fixed amount.
    The field used to define additional fees cannot be left empty in your third-party shipping
    provider account.
 
-.. _ecommerce/shipping/custom-method:
+.. _ecommerce/delivery/custom-method:
 
-Custom shipping method
+Custom delivery method
 ======================
 
-Custom shipping methods must be created, for example:
+Custom delivery methods must be created, for example:
 
-- to integrate shipping carriers through :doc:`Sendcloud
+- to integrate delivery carriers through :doc:`Sendcloud
   <../../../inventory_and_mrp/inventory/shipping_receiving/setup_configuration/sendcloud_shipping>`;
 - to configure specific rules (e.g., to offer free shipping for orders above a specific amount) for
   a specific provider;
 - to configure :ref:`Fixed Price <inventory/shipping/fixed>` shipping or shipping
   :ref:`Based on Rules <inventory/shipping/rules>`.
 
-To create a custom shipping method, go to :menuselection:`Website --> Configuration -->
-Shipping Methods`, click :guilabel:`New` and fill in the :ref:`fields
+To create a custom delivery method, go to :menuselection:`Website --> Configuration -->
+delivery Methods`, click :guilabel:`New` and fill in the :ref:`fields
 <inventory/shipping_receiving/shipping-methods-details>`.
 
 In the :guilabel:`Provider` field, select :ref:`Based on Rules <inventory/shipping/rules>`,
@@ -82,7 +82,7 @@ In the :guilabel:`Provider` field, select :ref:`Based on Rules <inventory/shippi
 if the shiping method does not involve any specific provider.
 
 .. tip::
-   Upon :ref:`configuring <inventory/shipping_receiving/configure-delivery-method>` a shipping
+   Upon :ref:`configuring <inventory/shipping_receiving/configure-delivery-method>` a delivery
    method, you can:
 
    - restrict it :doc:`to a specific website <../../website/configuration/multi_website>` by
@@ -91,17 +91,50 @@ if the shiping method does not involve any specific provider.
      based on the customer's area;
    - click the :guilabel:`Test Environment` smart button to switch to
      the :guilabel:`Production Environment`, then click :guilabel:`Unpublished` to
-     :guilabel:`Publish` the shipping method and make it available to website visitors.
+     :guilabel:`Publish` the delivery method and make it available to website visitors.
 
-.. _ecommerce/shipping/instore-pickup:
+.. _ecommerce/delivery/instore-pickup:
 
-In-store pickup
-===============
+Pick up in store
+================
 
-To allow customers to reserve products online and pay for/collect them in person at the store, go to
-:menuselection:`Website --> Configuration --> Settings`, scroll to the :guilabel:`Shipping` section,
-enable :guilabel:`On Site Payments & Picking`, and :guilabel:`Save`.
+To allow customers to reserve products online and pay for/collect them in-store, go to
+:menuselection:`Website --> Configuration --> Settings`. Scroll to the :guilabel:`Delivery` section,
+enable :guilabel:`Click & Collect`, and :guilabel:`Save`.
 
-Then, click :guilabel:`Customize Pickup Sites`, select the shipping method or click :guilabel:`New`
-to create a new one and :ref:`configure <inventory/shipping_receiving/configure-delivery-method>`
-the fields. Make sure the :guilabel:`Provider` field is set to :guilabel:`Pickup in store`.
+Next, click :icon:`fa-arrow-right` :guilabel:`Configure Pickup Locations` to
+:ref:`set up <inventory/shipping_receiving/configure-delivery-method>` your delivery method.
+Ensure the :guilabel:`Provider` field is set to :guilabel:`Pickup in store`. Under the
+:guilabel:`Stores` tab, click :guilabel:`Add a line` to add the :guilabel:`Warehouse` and its
+:guilabel:`Address` where customers can collect their orders, and the :guilabel:`Opening hours`.
+
+Once your set up is complete, click the :guilabel:`Unpublish` button to change the status to
+:guilabel:`Publish`, making the delivery method available to customers. When the product is in
+stock, a **location selector** is displayed on :doc:`product <../products>` and
+:doc:`checkout <checkout>` pages.
+
+.. note::
+   - Each warehouse must have a **complete address** to ensure its location is accurately displayed to
+     customers. Incomplete addresses prevents the warehouse from being shown.
+   - **Services** are not available for the pick up in store option.
+   - Customers cannot select a pick-up location if the product is out of stock at that location. The
+     :ref:`Continue selling <ecommerce/products/stock-management>` option for out-of-stock products
+     is not supported.
+   - If the :ref:`Show Available Qty <ecommerce/products/stock-management>` option is enabled for a
+     product, customers can view the stock quantity available for each warehouse in the location
+     selector on the product page.
+   - Customers cannot complete the :doc:`checkout <checkout>` if the selected products are out of
+     stock at the chosen pick-up location.
+
+Delivery method's availability
+==============================
+
+You can tailor a delivery method’s availability based on the order’s content or destination.
+
+To do so, go to :menuselection:`Website --> Configuration --> Delivery Methods` and select the
+desired method.
+
+From the :guilabel:`Destination` section you can restrict the availability to specific
+:guilabel:`Countries`, and from the :guilabel:`Content` section you can set a :guilabel:`Max Weight`
+or :guilabel:`Max Volume`, fill in the :guilabel:`Must Have Tags` or :guilabel:`Excluded Tags`
+fields.
