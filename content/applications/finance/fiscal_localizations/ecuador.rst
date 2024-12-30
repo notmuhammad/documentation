@@ -421,7 +421,6 @@ form, and complete the following information:
 After reviewing this information, click the :guilabel:`Create Debit Note` button.
 
 .. image:: ecuador/add-customer-debit-note.png
-   :align: center
    :alt: Add Customer Debit Note for Ecuador.
 
 The debit note amount can be changed, if desired. Before validating the debit note, review
@@ -536,7 +535,7 @@ reimbursement:
 - Tick the :guilabel:`Purchase Liquidations` checkbox
 - Add a :guilabel:`Default Expense Account`
 
-.. image:: l10n-ec-configuration-liquidations-journal.png
+.. image:: ecuador/l10n-ec-configuration-liquidations-journal.png
    :alt: Set up a purchase liquidation journal.
 
 Configure a purchase liquidation
@@ -598,7 +597,7 @@ Expense reimbursements apply to the following cases:
 - :guilabel:`Legal Entity:`: reimbursement for incurred expenses, such as representation expenses (e.g. hiring a lawyer)
 - :ref:`Vendor Bills <ecuador/vendor-bills>`
 
-.. image:: l10n-ec-expense-reimbursement.png
+.. image:: ecuador/l10n-ec-expense-reimbursement.png
    :alt: Expense Reimbursement.
 
 Reimbursing expenses for an individual
@@ -626,7 +625,7 @@ looks accurate, click the :guilabel:`Confirm the Vendor Bill` button, then the :
 Now` button. The XML and authorization number for the purchase liquidation is recorded, and the
 purchase withholding created from this vendor bill will have the reimbursement information.
 
-.. image:: l10n-ec-individual-flow.png
+.. image:: ecuador/l10n-ec-individual-flow.png
    :alt: Expense Reimbursement.
 
 Reimbursing expenses for a legal entity
@@ -641,7 +640,7 @@ reimbursement for a legal entity:
 - **Do not** tick the :guilabel:`Purchase Liquidations` checkbox
 - Add a :guilabel:`Default Expense Account`
 
-.. image:: l10n-ec-vendor-journal.png
+.. image:: ecuador/l10n-ec-vendor-journal.png
    :alt: Expense Reimbursement.
 
 Next, to create the reimbursement, :ref:`create a vendor bill <ecuador/vendor-bills>` using the
@@ -670,8 +669,7 @@ purchase withholding created from this vendor bill will have the reimbursement i
    It is not necessary to link a product in the expense lines. After adding the reimbursement lines,
    more lines can be added to represent other expenses that are not reimbursements.
 
-.. image:: l10n-ec-product.png
-   :align: center
+.. image:: ecuador/l10n-ec-product.png
    :alt: Expense Reimbursement.
 
 eCommerce
@@ -731,7 +729,6 @@ time.
    :doc:`Payment provider <../payment_providers>`
 
 .. image:: ecuador/l10n-ec-sri-payment-method.png
-   :align: center
    :alt: l10n_ec SRI Payment Method.
 
 eCommerce workflow
